@@ -2,5 +2,15 @@
 name = "mjolnir"
 version = "0.1.0"
 edition = "2024"
+authors = ["Victor Eni"]
+
 
 [dependencies]
+axum = "0.8.4"
+hyper = {version = "1.6.0", features = ["full"]}
+tokio = {version = "1.45.1", features = ["full"]}
+tracing = "0.1.41"
+tracing-subscriber = {version = "0.3.19", features = ["env-filter"]}
+dotenvy = "0.15.7"
+tower-http = {version = "0.6.5", features = ["cors"]}
+serde_json = "1.0.140"
