@@ -17,25 +17,3 @@ pub async fn create_pool(config: &Config) -> Result<PgPool, sqlx::Error> {
     Ok(pool)
 }
 
-// test db
-#[derive(Debug, sqlx::FromRow)]
-pub struct User {
-    pub id: uuid::Uuid,
-    pub username: String,
-}
-
-pub async fn create_user(pool: &PgPool, username: &str) -> Result<User, sqlx::Error> {
-    let user = sqlx::query_as!(
-        User,
-        r#"
-    INSERT INTO users(username)
-    VALUES ($1)
-    RETURNING id, username
-    "#,
-        username
-    )
-    .fetch_one(pool)
-    .await?;
-
-    Ok(user)
-}
