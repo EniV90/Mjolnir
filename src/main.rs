@@ -1,7 +1,7 @@
 
 use tokio::sync::oneshot;
 use mjolnir::application::app;
-
+use mjolnir::infrastructure::database;
 
 #[tokio::main]
 async fn main() {

@@ -5,8 +5,9 @@ use axum::{
 };
 use hyper::{HeaderMap, Method, StatusCode};
 use serde_json::json;
+use sqlx::PgPool;
 
-pub fn router() -> Router {
+pub fn router() -> Router<PgPool> {
     Router::new()
     .route("/", get(root_handler))
     .route("/head", get(head_request_handler))

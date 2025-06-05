@@ -11,6 +11,7 @@ static CONFIG: OnceLock<Config> = OnceLock::new();
 pub struct Config {
   pub service_host: String,
   pub service_port: u16,
+  pub database_url: String
 }
 
 impl Config {
@@ -28,6 +29,7 @@ impl Config {
     let config = Config {
       service_host: env_get("SERVICE_HOST"),
       service_port: env_parse("SERVICE_PORT"),
+      database_url: env_get("DATABASE_URL")
     };
 
     tracing::trace!("Configuration: {:?}", config);

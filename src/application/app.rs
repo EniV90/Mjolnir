@@ -3,6 +3,7 @@ use tokio::sync::oneshot;
 use tower_http::cors::{Any, CorsLayer};
 use crate::application::config;
 use crate::api::router;
+use crate::infrastructure::database;
 
 
 pub async fn start_server(api_ready: oneshot::Sender<()>) {
@@ -10,8 +11,13 @@ pub async fn start_server(api_ready: oneshot::Sender<()>) {
   let config = config::Config::get();
   let socket_addr = config.service_socket_addr();
 
+  let db_pool = database::create_pool(config)
+    .await
+    .expect("failed to create database_pool");
+
   let app = router::router()
-    .layer(CorsLayer::new().allow_origin(Any));
+    .layer(CorsLayer::new().allow_origin(Any))
+    .with_state(db_pool);
 
   let listener = tokio::net::TcpListener::bind(&socket_addr).await.unwrap();
   tracing::info!("Server running on Port: {}", socket_addr);
@@ -22,7 +28,7 @@ pub async fn start_server(api_ready: oneshot::Sender<()>) {
     .with_graceful_shutdown(shutdown_signal())
     .await
     .unwrap();
-
+    
     tracing::info!("Server shutdown successfully.")
   
 }
