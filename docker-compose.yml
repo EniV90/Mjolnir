@@ -1,0 +1,42 @@
+services:
+   
+  postgres:
+    image: postgres:15
+    container_name: mjolnir_postgres
+    environment:
+      POSTGRES_DB: mjolnir
+      POSTGRES_USER: mjolnir_user
+      POSTGRES_PASSWORD: mjolnir_password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    networks:
+      - mjolnir_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mjolnir_user -d mjolnir"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+   
+  redis:
+    image: redis:7-alpine
+    container_name: mjolnir_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - mjolnir_network
+  
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  mjolnir_network:
+    driver: bridge
