@@ -1,18 +1,24 @@
 use std::collections::HashMap;
 
 use axum::{
-    body::Body, extract::{Query, Request}, middleware::Next, response::{IntoResponse, Response}, routing::{any, get}, Json, Router
+    Json, Router,
+    body::Body,
+    extract::{Query, Request},
+    middleware::Next,
+    response::{IntoResponse, Response},
+    routing::{any, get},
 };
 use hyper::{HeaderMap, Method, StatusCode};
 use serde_json::json;
 use sqlx::PgPool;
+use crate::application::state::AppState;
 
-pub fn router() -> Router<PgPool> {
+pub fn router() -> Router<AppState> {
     Router::new()
-    .route("/", get(root_handler))
-    .route("/head", get(head_request_handler))
-    .route("/any", any(any_request_handler))
-    .fallback(error_404_handler)
+        .route("/", get(root_handler))
+        .route("/head", get(head_request_handler))
+        .route("/any", any(any_request_handler))
+        .fallback(error_404_handler)
 }
 
 #[tracing::instrument(level = tracing::Level::TRACE, name = "mjolnir", skip_all, fields(method=request.method().to_string(),uri=request.uri().to_string()))]
@@ -34,14 +40,14 @@ async fn head_request_handler(method: Method) -> Response {
         tracing::debug!("Head not found");
         return [("x-some-header", "header from HEAD")].into_response();
     }
-    ([("x-some-header", "header from HEAD")], "body from GET").into_response() 
+    ([("x-some-header", "header from HEAD")], "body from GET").into_response()
 }
 
 async fn any_request_handler(
     method: Method,
     headers: HeaderMap,
     Query(params): Query<HashMap<String, String>>,
-    request: Request
+    request: Request,
 ) -> impl IntoResponse {
     if tracing::enabled!(tracing::Level::DEBUG) {
         tracing::debug!("method: {:?}", method);
