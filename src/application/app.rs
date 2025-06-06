@@ -1,4 +1,4 @@
-use crate::api::router;
+use crate::api::server;
 use crate::application::{config, state::AppState};
 use crate::infrastructure::{database, redis};
 use tokio::sync::oneshot;
@@ -21,7 +21,7 @@ pub async fn start_server(api_ready: oneshot::Sender<()>) {
 
     let app_state = AppState::new(db_pool, redis_pool);
 
-    let app = router::router()
+    let app = server::router()
         .layer(CorsLayer::new().allow_origin(Any))
         .with_state(app_state);
 

@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::application::state::AppState;
 use axum::{
     Json, Router,
     body::Body,
@@ -11,7 +12,6 @@ use axum::{
 use hyper::{HeaderMap, Method, StatusCode};
 use serde_json::json;
 use sqlx::PgPool;
-use crate::application::state::AppState;
 
 pub fn router() -> Router<AppState> {
     Router::new()

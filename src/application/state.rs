@@ -1,5 +1,8 @@
 use deadpool_redis::Pool as RedisPool;
 use sqlx::PgPool;
+use std::sync::Arc;
+
+pub type SharedState = Arc<AppState>;
 
 #[derive(Clone)]
 pub struct AppState {

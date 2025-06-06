@@ -31,11 +31,30 @@ services:
       - redis_data:/data
     networks:
       - mjolnir_network
+
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: mjolnir_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@mjolnir.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - mjolnir_network
+    depends_on:
+      - postgres
+    
   
 
 volumes:
   postgres_data:
   redis_data:
+  pgadmin_data:
 
 networks:
   mjolnir_network:

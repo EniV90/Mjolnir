@@ -11,6 +11,9 @@ pub struct Config {
     pub service_port: u16,
     pub database_url: String,
     pub redis_url: String,
+    pub postgres_db: String,
+    pub postgres_password: String,
+    pub postgres_user: String,
 }
 
 impl Config {
@@ -30,6 +33,9 @@ impl Config {
             service_port: env_parse("SERVICE_PORT"),
             database_url: env_get("DATABASE_URL"),
             redis_url: env_get("REDIS_URL"),
+            postgres_db: env_get("POSTGRES_DB"),
+            postgres_password: env_get("POSTGRES_PASSWORD"),
+            postgres_user: env_get("POSTGRES_USER"),
         };
 
         tracing::trace!("Configuration: {:?}", config);
@@ -54,11 +60,6 @@ fn env_get(key: &str) -> String {
 }
 
 #[inline]
-fn env_get_or(key: &str, value: &str) -> String {
-    std::env::var(key).unwrap_or_else(|_| value.to_string())
-}
-
-#[inline]
 fn env_parse<T: std::str::FromStr>(key: &str) -> T {
     match env_get(key).parse() {
         Ok(v) => v,
@@ -67,19 +68,5 @@ fn env_parse<T: std::str::FromStr>(key: &str) -> T {
             tracing::error!("{}", msg);
             panic!("{}", msg)
         }
-    }
-}
-
-#[inline]
-fn env_parse_or<T: std::str::FromStr>(key: &str, default: T) -> T {
-    match std::env::var(key) {
-        Ok(val) => match val.parse() {
-            Ok(v) => v,
-            Err(_) => {
-                tracing::warn!("Failed to parse {}, using default", key);
-                default
-            }
-        },
-        Err(_) => default,
     }
 }
