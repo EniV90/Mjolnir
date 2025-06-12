@@ -2,12 +2,7 @@ use std::collections::HashMap;
 
 use crate::application::state::AppState;
 use axum::{
-    Json, Router,
-    body::Body,
-    extract::{Query, Request},
-    middleware::Next,
-    response::{IntoResponse, Response},
-    routing::{any, get},
+    body::Body, extract::{Query, Request}, middleware::{self, Next}, response::{IntoResponse, Response}, routing::{any, get}, Json, Router
 };
 use hyper::{HeaderMap, Method, StatusCode};
 use serde_json::json;
@@ -19,6 +14,7 @@ pub fn router() -> Router<AppState> {
         .route("/head", get(head_request_handler))
         .route("/any", any(any_request_handler))
         .fallback(error_404_handler)
+        .layer(middleware::from_fn(logging_middleware))
 }
 
 #[tracing::instrument(level = tracing::Level::TRACE, name = "mjolnir", skip_all, fields(method=request.method().to_string(),uri=request.uri().to_string()))]

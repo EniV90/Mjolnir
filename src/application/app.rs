@@ -1,6 +1,7 @@
-use crate::api::server;
+use crate::api::server::{self, logging_middleware};
 use crate::application::{config, state::AppState};
 use crate::infrastructure::{database, redis};
+use axum::middleware;
 use tokio::sync::oneshot;
 use tower_http::cors::{Any, CorsLayer};
 
@@ -15,6 +16,13 @@ pub async fn start_server(api_ready: oneshot::Sender<()>) {
         .await
         .expect("failed to create Database pool");
 
+    tracing::info!("Running database migrations");
+    sqlx::migrate!("src/infrastructure/database/postgres/migrations")
+    .run(&db_pool)
+    .await
+    .expect("Failed to run database migrations");
+    tracing::info!("Database migration completed successfully");
+
     let redis_pool = redis::connection::create_pool(&config.redis_url)
     .await
     .expect("Failed to create Redis pool");
@@ -23,6 +31,7 @@ pub async fn start_server(api_ready: oneshot::Sender<()>) {
 
     let app = server::router()
         .layer(CorsLayer::new().allow_origin(Any))
+        .layer(middleware::from_fn(logging_middleware))
         .with_state(app_state);
 
     let listener = tokio::net::TcpListener::bind(&socket_addr).await.unwrap();

@@ -17,6 +17,6 @@ async fn main() {
 
     tokio::signal::ctrl_c()
         .await
-        .expect("Failed to listen for ctrc+c");
+        .expect("Failed to listen for ctrl+c");
     println!("Shutting down...");
 }
